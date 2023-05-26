@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import os
 from datetime import datetime
+import base64
 
 
 WSIZE=(500, 200)
@@ -26,17 +27,19 @@ col_main = [
     ],
     [
         sg.Text('Insert string'),
-        sg.InputText(
+        sg.Multiline(
             size=(25,1),
             enable_events=True, 
             expand_x=True,
             justification='left',
-            key='-PDFSTRING-'
+            key='-PDFSTRING-',
+            do_not_clear=False
         ),
         sg.Button('Ok', key='-OK-')
     ],
     [
-        sg.Button("Generate pdf")
+        sg.Button("Generate pdf"),
+        sg.Button("Open pdf")
     ],
     [
         sg.Button("Exit")
@@ -66,6 +69,7 @@ def launch_pdf_generator_menu():
     window_welcome.close()
     dest_folder = DEFAULT_FOLDER
     input_pdf_string = None
+    file = None
     while True:
         event, values = window_main.read()
         if event == "Exit" or event == sg.WIN_CLOSED:
@@ -80,19 +84,33 @@ def launch_pdf_generator_menu():
             if len(input_pdf_string) == 0:
                 msg = 'empty pdf string!'
             else:
-                msg = f'Entered: {input_pdf_string}'
+                pass
+                msg = f'Input string received. Click on "Generate pdf" once finished.'
         elif event == 'Generate pdf':
             file = generate_pdf(
                 input_string=input_pdf_string,
                 dest_folder=dest_folder
             )
+            values['-PDFSTRING-'] = ""
             msg = f'pdf generated: {file}'
+        elif event == "Open pdf":
+            if file is None:
+                msg = "No pdf generated!"
+            elif os.path.exists(file):
+                os.startfile(file)
+            else:
+                msg = f"File {file} not found!"
+            
         window_main['-TEXT-'].update(msg)
     window_main.close()
 
 def generate_pdf(input_string, dest_folder):
     ts = str(datetime.now()).replace('-', '').replace(':', '').replace(' ', '-').replace('.', '')
     filename = dest_folder + '/' + ts + '.pdf'
+    stuffout = base64.b64decode(input_string)
+    fileout = open(filename, "wb")
+    fileout.write(stuffout)
+    fileout.close()
     return filename
 
 main()
