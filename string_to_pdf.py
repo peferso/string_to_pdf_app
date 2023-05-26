@@ -4,6 +4,10 @@ from datetime import datetime
 import base64
 
 
+FONT = 'Consolas'
+THEME = 'DarkAmber'
+sg.theme(THEME)
+sg.set_options(font=FONT)
 WSIZE=(500, 200)
 DEFAULT_FOLDER = os.path.expanduser('~')
 col_welcome = [
@@ -51,8 +55,18 @@ layout_welcome = [[sg.Column(col_welcome, element_justification='c')]]
 layout_main = [[sg.Column(col_main, element_justification='c')]]
 
 # Create the window
-window_welcome = sg.Window("text_to_pdf: Welcome", layout_welcome, resizable=True, size=WSIZE)
-window_main = sg.Window("text_to_pdf: main", layout_main, resizable=True, size=WSIZE)
+window_welcome = sg.Window(
+    "text_to_pdf: Welcome",
+    layout_welcome,
+    resizable=True,
+    # size=WSIZE
+)
+window_main = sg.Window(
+    "text_to_pdf: main",
+    layout_main,
+    resizable=True,
+    # size=WSIZE
+)
 
 def main():
     # Create an event loop
@@ -87,17 +101,22 @@ def launch_pdf_generator_menu():
                 pass
                 msg = f'Input string received. Click on "Generate pdf" once finished.'
         elif event == 'Generate pdf':
-            file = generate_pdf(
-                input_string=input_pdf_string,
-                dest_folder=dest_folder
-            )
-            values['-PDFSTRING-'] = ""
-            msg = f'pdf generated: {file}'
+            if input_pdf_string is None:
+                msg = 'Please, insert the input pdf string first.'
+            else:
+                file = generate_pdf(
+                    input_string=input_pdf_string,
+                    dest_folder=dest_folder
+                )
+                values['-PDFSTRING-'] = ""
+                input_pdf_string = None
+                msg = f'pdf generated: {file}'
         elif event == "Open pdf":
             if file is None:
                 msg = "No pdf generated!"
             elif os.path.exists(file):
                 os.startfile(file)
+                msg = f"File {file} opened."
             else:
                 msg = f"File {file} not found!"
             
