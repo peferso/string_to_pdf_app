@@ -98,19 +98,21 @@ def launch_pdf_generator_menu():
             if len(input_pdf_string) == 0:
                 msg = 'empty pdf string!'
             else:
-                pass
                 msg = f'Input string received. Click on "Generate pdf" once finished.'
         elif event == 'Generate pdf':
             if input_pdf_string is None:
                 msg = 'Please, insert the input pdf string first.'
             else:
-                file = generate_pdf(
+                file, status = generate_pdf(
                     input_string=input_pdf_string,
                     dest_folder=dest_folder
                 )
                 values['-PDFSTRING-'] = ""
                 input_pdf_string = None
-                msg = f'pdf generated: {file}'
+                if status == 'OK':
+                    msg = f'pdf generated: {file}'
+                else:
+                    msg = f'Unable to generate pdf from input string!'
         elif event == "Open pdf":
             if file is None:
                 msg = "No pdf generated!"
@@ -126,10 +128,15 @@ def launch_pdf_generator_menu():
 def generate_pdf(input_string, dest_folder):
     ts = str(datetime.now()).replace('-', '').replace(':', '').replace(' ', '-').replace('.', '')
     filename = dest_folder + '/' + ts + '.pdf'
-    stuffout = base64.b64decode(input_string)
-    fileout = open(filename, "wb")
-    fileout.write(stuffout)
-    fileout.close()
-    return filename
+    try:
+        stuffout = base64.b64decode(input_string)    
+        fileout = open(filename, "wb")
+        fileout.write(stuffout)
+        fileout.close()
+        status = 'OK'
+    except Exception:
+        status = 'KO'
+        filename = None
+    return filename, status
 
 main()
