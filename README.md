@@ -3,7 +3,7 @@ simple desktop utility
 
 # generate .exe
 
-Clone this repo, cd to the script folder and run:
+Clone this repo, cd to the script folder and run (requires pyinstaller):
 
 ```sh
 python -m PyInstaller --onefile string_to_pdf.py
